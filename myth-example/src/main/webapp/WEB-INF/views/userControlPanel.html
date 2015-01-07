@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		
+		<title th:text="#{pageTitles.userControlPanel}">Page Title</title>
+		
+		<link rel="stylesheet" href="../../resources/css/bootstrap-2.3.0.css" th:href="@{/resources/css/bootstrap-2.3.0.css}" />
+		
+		<script type="text/javascript" th:src="@{/resources/js/jquery-1.9.1.js}"></script>
+		<script type="text/javascript" th:src="@{/resources/js/bootstrap-2.3.0.js}"></script>
+		<script type="text/javascript" th:src="@{/resources/js/myth-1.0.0-SNAPSHOT.js}"></script>
+	</head>
+	
+	<body>
+		<div class="container">
+			<div class="row span12">
+				
+			<!-- Locale Changing Links -->
+				<div class="pull-right">
+					<a href="#" th:href="@{${#httpServletRequest.servletPath}(locale='tr')}">TR</a> | <a href="#" th:href="@{${#httpServletRequest.servletPath}(locale='en')}">ENG</a>
+				</div>
+				
+			<!-- Header -->
+				<h1 th:text="#{headers.userRegistration}">User Registiration</h1>
+				
+			<!-- User Registiration Form -->
+				<form action="#" th:id="${'newUser' + 'Form'}" myth:event="submit" myth:update="${'newUser' + 'Form'} userListTableBody" myth:process="${'newUser' + 'Form'}" myth:url="@{/saveUser}" class="form-horizontal" th:object="${user}" method="POST">
+					<fieldset>
+						<legend th:text="#{headers.userRegistrationForm}">New User</legend>
+						
+						<div id="firstnameControlGroup" class="control-group" th:class="'control-group' + (${#fields.hasErrors('firstname')} ? ' error' : '')">
+							<label for="firstname" class="control-label" th:text="#{labels.firstname}">Firstname</label>
+							<div class="controls">
+								<input type="text" th:field="*{firstname}" id="firstname" myth:update="[[${'newUser' + 'Form'}>>firstnameControlGroup]]" myth:process="firstname" myth:event="blur" myth:url="@{/saveUser}" />
+								<span class="help-inline" th:if="${#fields.hasErrors('firstname')}" th:errors="*{firstname}">Inline help</span>
+							</div>
+						</div>
+						
+						<div id="lastnameControlGroup" class="control-group" th:class="'control-group' + (${#fields.hasErrors('lastname')} ? ' error' : '')">
+							<label for="lastname" class="control-label" th:text="#{labels.lastname}">Lastname</label>
+							<div class="controls">
+								<input type="text" th:field="*{lastname}" id="lastname" myth:update="[[${'newUser' + 'Form'}>>lastnameControlGroup]]" myth:process="lastname" myth:event="blur" myth:url="@{/saveUser}" />
+								<span class="help-inline" th:if="${#fields.hasErrors('lastname')}" th:errors="*{lastname}">Inline help</span>
+							</div>
+						</div>
+						
+						<div class="control-group" th:class="'control-group' + (${#fields.hasErrors('type')} ? ' error' : '')">
+							<label for="type" class="control-label" th:text="#{labels.userType}">User Type</label>
+							<div class="controls">
+								<select th:field="*{type}" id="type">
+									<option th:each="type : ${userTypes}" th:value="${type}" th:text="#{enums.UserType.__${type}__}">System Admin</option>
+								</select>
+								<span class="help-inline" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">Inline help</span>
+							</div>
+						</div>
+						
+						<div class="control-group">
+    						<div class="controls">
+								<button type="submit" class="btn btn-primary" name="saveUser" th:text="#{buttons.save}">Save</button>
+								<button id="resetForm" href="#" myth:update="${'newUser' + 'Form'}" myth:url="@{/resetForm}" class="btn" th:text="#{buttons.reset}">Reset</button>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+			
+			<div class="row span12">
+				<hr />
+			</div>
+			
+		<!-- User List -->
+			<div class="row span12">
+				
+			<!-- Header -->
+				<h1 th:text="#{headers.userList}">User List</h1>
+				
+			<!-- Users Table -->
+				<table id="userListTable" class="table table-condense">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th th:text="#{labels.firstname}">Firstname</th>
+							<th th:text="#{labels.lastname}">Lastname</th>
+							<th th:text="#{labels.userType}">User Type</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="userListTableBody">
+						<tr th:each="user : ${userList}" th:id="${'user_' + user.id}">
+							<td th:text="${user.id}">1</td>
+							<td th:text="${user.firstname}">Ufuk</td>
+							<td th:text="${user.lastname}">Uzun</td>
+							<td th:text="#{enums.UserType.__${user.type}__}">User Type</td>
+							<td>
+								<a href="#" myth:event="click" myth:update="[[userListTableBody>>${'user_' + user.id}]]" myth:url="@{/deleteUser/__${user.id}__}" th:text="#{buttons.delete}">Delete</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>
