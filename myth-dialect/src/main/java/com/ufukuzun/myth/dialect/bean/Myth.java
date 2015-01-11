@@ -29,12 +29,10 @@ import org.jsoup.nodes.Node;
 import org.jsoup.parser.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.fragment.IFragmentSpec;
@@ -48,6 +46,7 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +57,13 @@ public class Myth {
 
     private static final String STANDARD_ID_FRAGMENT_SELECTOR_ATTR_NAME = "id";
 
+    private final static Method RENDER_FRAGMENT_METHOD;
+
+    static {
+        RENDER_FRAGMENT_METHOD = ReflectionUtils.findMethod(ThymeleafView.class, "renderFragment", IFragmentSpec.class, Map.class, HttpServletRequest.class, HttpServletResponse.class);
+        RENDER_FRAGMENT_METHOD.setAccessible(true);
+    }
+
     @Autowired
     private SessionLocaleResolver localeResolver;
 
@@ -67,17 +73,8 @@ public class Myth {
     @Autowired
     private Validator validator;
 
-    public <T> AjaxResponse response(AjaxRequest<T> form, ModelAndView modelAndView, HttpServletResponse response) {
-        return response(form, modelAndView.getViewName(), modelAndView.getModelMap(), response);
-    }
-
     public <T> AjaxResponse response(AjaxRequest<T> form, ModelAndView modelAndView, HttpServletResponse response, HttpServletRequest request) {
         return response(form, modelAndView.getViewName(), modelAndView.getModelMap(), response, request);
-    }
-
-    public <T> AjaxResponse response(AjaxRequest<T> form, String viewName, ModelMap modelMap, HttpServletResponse response) {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        return response(form, viewName, modelMap, response, request);
     }
 
     public <T> AjaxResponse response(AjaxRequest<T> form, String viewName, ModelMap modelMap, HttpServletResponse response, HttpServletRequest request) {
@@ -113,14 +110,9 @@ public class Myth {
     }
 
     private String process(final String viewName, final String fragmentSelectorAttrValue, ModelMap modelMap, HttpServletRequest request, HttpServletResponse response) {
-        final StringWriter html = new StringWriter();
+        final StringWriter htmlStringWriter = new StringWriter();
 
-        View view = new View() {
-
-            @Override
-            public String getContentType() {
-                return "text/html";
-            }
+        ThymeleafView view = new ThymeleafView() {
 
             @Override
             public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -128,43 +120,29 @@ public class Myth {
 
                     @Override
                     public PrintWriter getWriter() throws IOException {
-                        return new PrintWriter(html);
+                        return new PrintWriter(htmlStringWriter);
                     }
 
                 };
 
-                try {
-                    View realView = viewResolver.resolveViewName(viewName, localeResolver.resolveLocale(request));
+                ThymeleafView realView = (ThymeleafView) viewResolver.resolveViewName(viewName, localeResolver.resolveLocale(request));
 
-                    String selectorAttrName = ExpressionUtils.isDollarExpression(fragmentSelectorAttrValue) ? THYMELEAF_ID_FRAGMENT_SELECTOR_ATTR_NAME : STANDARD_ID_FRAGMENT_SELECTOR_ATTR_NAME;
-                    IFragmentSpec fragmentSpec = new AttributeNameAndValueFragmentSpec(fragmentSelectorAttrValue, selectorAttrName);
+                String selectorAttrName = ExpressionUtils.isDollarExpression(fragmentSelectorAttrValue) ? THYMELEAF_ID_FRAGMENT_SELECTOR_ATTR_NAME : STANDARD_ID_FRAGMENT_SELECTOR_ATTR_NAME;
+                IFragmentSpec fragmentSpec = new AttributeNameAndValueFragmentSpec(fragmentSelectorAttrValue, selectorAttrName);
 
-                    ((ThymeleafView) realView).setFragmentSpec(fragmentSpec);
-
-                    try {
-                        realView.render(model, request, wrapper);
-                    } catch (Exception e) {
-                        throw e;
-                    } finally {
-                        ((ThymeleafView) realView).setFragmentSpec(null);
-                    }
-                } catch (Exception e) {
-                    throw e;
-                }
+                RENDER_FRAGMENT_METHOD.invoke(realView, fragmentSpec, model, request, wrapper);
             }
+
         };
 
         try {
             view.render(modelMap, request, response);
         } catch (Exception e) {
+            // TODO ufuk: log the exception, do not use "e.printStackTrace()"
             e.printStackTrace();
         }
 
-        return html.toString();
-    }
-
-    public <T> boolean validate(T bean) {
-        return validator.validate(bean).isEmpty();
+        return htmlStringWriter.toString();
     }
 
     public <T> boolean validate(ModelMap modelMap, T targetBean, String targetName) {
