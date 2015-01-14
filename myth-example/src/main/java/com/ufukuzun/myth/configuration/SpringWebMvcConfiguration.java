@@ -15,6 +15,7 @@ import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -25,7 +26,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import org.thymeleaf.templateresolver.TemplateResolver;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -102,6 +103,11 @@ public class SpringWebMvcConfiguration extends WebMvcConfigurerAdapter {
         return viewResolver;
     }
 
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("index");
+    }
+
     @Bean
     public Myth myth() {
         return new Myth();
@@ -119,9 +125,7 @@ public class SpringWebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Bean
     public AjaxRequestResponseBodyReturnValueHandler ajaxRequestResponseBodyReturnValueHandler() {
-        return new AjaxRequestResponseBodyReturnValueHandler(new ArrayList<HttpMessageConverter<?>>() {{
-            add(mappingJackson2HttpMessageConverter());
-        }});
+        return new AjaxRequestResponseBodyReturnValueHandler(Arrays.<HttpMessageConverter<?>>asList(mappingJackson2HttpMessageConverter()));
     }
 
     @Bean

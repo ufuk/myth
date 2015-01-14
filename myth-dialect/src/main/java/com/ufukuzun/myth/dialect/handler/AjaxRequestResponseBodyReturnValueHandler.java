@@ -22,11 +22,11 @@ import com.ufukuzun.myth.dialect.handler.annotation.AjaxResponseBody;
 import com.ufukuzun.myth.dialect.model.AjaxRequest;
 import com.ufukuzun.myth.dialect.model.AjaxResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.util.Assert;
@@ -45,15 +45,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageConverterMethodProcessor {
 
     @Autowired
     private Myth myth;
+
+    @Autowired
+    private MappingJackson2HttpMessageConverter jsonMessageConverter;
 
     public AjaxRequestResponseBodyReturnValueHandler(List<HttpMessageConverter<?>> messageConverters) {
         super(messageConverters);
@@ -65,7 +66,6 @@ public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageCo
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
         mavContainer.setRequestHandled(true);
 
@@ -83,18 +83,8 @@ public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageCo
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected <T> void writeWithMessageConverters(T returnValue, MethodParameter returnType, ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage) throws IOException, HttpMediaTypeNotAcceptableException {
-        Class<?> returnValueClass = returnValue.getClass();
-
-        for (HttpMessageConverter<?> messageConverter : messageConverters) {
-            if (messageConverter.canWrite(returnValueClass, MediaType.APPLICATION_JSON)) {
-                ((HttpMessageConverter<T>) messageConverter).write(returnValue, MediaType.APPLICATION_JSON, outputMessage);
-                return;
-            }
-        }
-
-        throw new HttpMediaTypeNotAcceptableException(allSupportedMediaTypes);
+        jsonMessageConverter.write(returnValue, MediaType.APPLICATION_JSON, outputMessage);
     }
 
     @Override
@@ -130,19 +120,8 @@ public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageCo
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    protected <T> Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType) throws IOException, HttpMediaTypeNotSupportedException {
-        Class<?> contextClass = parameter.getDeclaringClass();
-        Map<TypeVariable, Type> map = GenericTypeResolver.getTypeVariableMap(contextClass);
-        Class<T> targetClass = (Class<T>) GenericTypeResolver.resolveType(targetType, map);
-
-        for (HttpMessageConverter<?> converter : this.messageConverters) {
-            if (converter.canRead(targetClass, MediaType.APPLICATION_JSON)) {
-                return ((HttpMessageConverter<T>) converter).read(targetClass, inputMessage);
-            }
-        }
-
-        throw new HttpMediaTypeNotSupportedException(MediaType.APPLICATION_JSON, allSupportedMediaTypes);
+    protected Object readWithMessageConverters(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType) throws IOException, HttpMediaTypeNotSupportedException {
+        return jsonMessageConverter.read(targetType, parameter.getDeclaringClass(), inputMessage);
     }
 
 }

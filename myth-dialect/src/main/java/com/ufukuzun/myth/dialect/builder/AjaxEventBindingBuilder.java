@@ -55,7 +55,7 @@ public class AjaxEventBindingBuilder {
     }
 
     private static String getProcessString(Arguments arguments, Element element) {
-        return getProcessedFragmentIdsWithQoute(arguments, element, MythProcessAttrProcessor.ATTR_NAME_WITH_PREFIX);
+        return getProcessedFragmentIdsWithQuote(arguments, element, MythProcessAttrProcessor.ATTR_NAME_WITH_PREFIX);
     }
 
     private static String getUrlString(Arguments arguments, Element element) {
@@ -87,20 +87,20 @@ public class AjaxEventBindingBuilder {
     private static String getRequestUpdateString(Arguments arguments, String[] array) {
         return String.format(
                 requestUpdateFormat,
-                getIdsWithQoute(arguments, array[0], false, true),
-                getProcessedFragmentIdsWithQoute(arguments, array[1])
+                getIdsWithQuote(arguments, array[0], false, true),
+                getProcessedFragmentIdsWithQuote(arguments, array[1])
         );
     }
 
-    private static String getProcessedFragmentIdsWithQoute(Arguments arguments, Element element, String attributeName) {
-        return getIdsWithQoute(arguments, element.getAttributeValue(attributeName), true, false);
+    private static String getProcessedFragmentIdsWithQuote(Arguments arguments, Element element, String attributeName) {
+        return getIdsWithQuote(arguments, element.getAttributeValue(attributeName), true, false);
     }
 
-    private static String getProcessedFragmentIdsWithQoute(Arguments arguments, String attributeValue) {
-        return getIdsWithQoute(arguments, attributeValue, true, false);
+    private static String getProcessedFragmentIdsWithQuote(Arguments arguments, String attributeValue) {
+        return getIdsWithQuote(arguments, attributeValue, true, false);
     }
 
-    private static String getIdsWithQoute(Arguments arguments, String attributeValue, boolean process, boolean encode) {
+    private static String getIdsWithQuote(Arguments arguments, String attributeValue, boolean process, boolean encode) {
         List<String> ids = ExpressionUtils.splitIdFragments(attributeValue);
 
         StringBuilder stringBuilder = new StringBuilder();
