@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+
+        <title>Complex Object Binding Example</title>
+
+        <link rel="stylesheet" href="../../../resources/css/bootstrap-2.3.0.css"
+              th:href="@{/resources/css/bootstrap-2.3.0.css}"/>
+
+        <script type="text/javascript" th:src="@{/resources/js/jquery-1.9.1.js}"></script>
+        <script type="text/javascript" th:src="@{/resources/js/bootstrap-2.3.0.js}"></script>
+        <script type="text/javascript" th:src="@{/resources/js/myth-1.0.0-SNAPSHOT.js}"></script>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row span12">
+
+                <h1>Complex Object Binding Example</h1>
+
+                <form action="#" th:id="formId" myth:event="submit" myth:update="outputPanel" myth:process="formId"
+                      myth:url="@{/jsonBindingExamples/complexJsonObjects/bind}" class="form-horizontal" th:object="${parentModel}" method="POST">
+                    <fieldset>
+                        <legend>Form</legend>
+
+                        <div class="control-group">
+                            <label for="leafName" class="control-label">Leaf Name (Hierarchical Order: 3)</label>
+
+                            <div class="controls">
+                                <input type="text" th:field="*{child.leaf.name}" id="leafName"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="parentName" class="control-label">Parent Name (Hierarchical Order: 1)</label>
+
+                            <div class="controls">
+                                <input type="text" th:field="*{name}" id="parentName"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="childName" class="control-label">Child Name (Hierarchical Order: 2)</label>
+
+                            <div class="controls">
+                                <input type="text" th:field="*{child.name}" id="childName"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-primary">Bind</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="row span12" id="outputPanel">
+                <legend>Result</legend>
+
+                <pre th:text="${parentModel}"></pre>
+            </div>
+        </div>
+</body>
+</html>
