@@ -1,6 +1,6 @@
-package com.ufukuzun.myth.domain;
+package com.ufukuzun.myth.controller.crud.domain;
 
-import com.ufukuzun.myth.enums.UserType;
+import com.ufukuzun.myth.controller.crud.enums.UserType;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;

@@ -1,12 +1,12 @@
-package com.ufukuzun.myth.controller;
+package com.ufukuzun.myth.controller.crud;
 
+import com.ufukuzun.myth.controller.crud.domain.User;
+import com.ufukuzun.myth.controller.crud.enums.UserType;
+import com.ufukuzun.myth.controller.crud.request.UserAjaxRequest;
 import com.ufukuzun.myth.dialect.handler.annotation.AjaxRequestBody;
 import com.ufukuzun.myth.dialect.handler.annotation.AjaxResponseBody;
 import com.ufukuzun.myth.dialect.model.AjaxRequest;
 import com.ufukuzun.myth.dialect.model.AjaxResponse;
-import com.ufukuzun.myth.domain.User;
-import com.ufukuzun.myth.enums.UserType;
-import com.ufukuzun.myth.request.UserAjaxRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,28 +20,28 @@ import java.util.Arrays;
 import java.util.List;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/crudExamples/userControlPanel")
 public class UsersController {
 
-    private static final List<User> userList = new ArrayList<User>();
+    private static final List<User> USERS = new ArrayList<User>();
 
-    private static final String viewName = "userControlPanel";
+    private static final String VIEW_NAME = "crudExamples/userControlPanel";
 
     static {
-        userList.add(new User(1, "Daniel", "Fernández", UserType.ADMIN));
-        userList.add(new User(2, "Ufuk", "Uzun", UserType.MODERATOR));
-        userList.add(new User(3, "Mr. Nobody", "Someone", UserType.STANDARD_USER));
+        USERS.add(new User(1, "Daniel", "Fernández", UserType.ADMIN));
+        USERS.add(new User(2, "Ufuk", "Uzun", UserType.MODERATOR));
+        USERS.add(new User(3, "Mr. Nobody", "Someone", UserType.STANDARD_USER));
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public String listUsers(ModelMap modelMap) {
         modelMap.addAttribute("user", new User());
-        return viewName;
+        return VIEW_NAME;
     }
 
     @ModelAttribute("userList")
     public List<User> getUserList() {
-        return userList;
+        return USERS;
     }
 
     @ModelAttribute("userTypes")
@@ -52,10 +52,10 @@ public class UsersController {
     @RequestMapping(value = "/saveUser", method = RequestMethod.POST)
     @AjaxResponseBody
     public AjaxResponse saveUser(@AjaxRequestBody(validate = true, targetName = "user") UserAjaxRequest ajaxRequest, ModelAndView modelAndView) {
-        modelAndView.setViewName(viewName);
+        modelAndView.setViewName(VIEW_NAME);
         if (ajaxRequest.isModelValid()) {
             ajaxRequest.getModel().setId(getNextId());
-            userList.add(ajaxRequest.getModel());
+            USERS.add(ajaxRequest.getModel());
             modelAndView.addObject("user", new User());
         }
         return new AjaxResponse(ajaxRequest, modelAndView);
@@ -64,7 +64,7 @@ public class UsersController {
     @RequestMapping(value = "/resetForm", method = RequestMethod.POST)
     @AjaxResponseBody
     public AjaxResponse resetForm(@AjaxRequestBody AjaxRequest<?> ajaxRequest, ModelAndView modelAndView) {
-        modelAndView.setViewName(viewName);
+        modelAndView.setViewName(VIEW_NAME);
         modelAndView.addObject("user", new User());
         return new AjaxResponse(ajaxRequest, modelAndView);
     }
@@ -72,27 +72,27 @@ public class UsersController {
     @RequestMapping(value = "/deleteUser/{id}", method = RequestMethod.POST)
     @AjaxResponseBody
     public AjaxResponse deleteUser(@AjaxRequestBody AjaxRequest<?> ajaxRequest, @PathVariable Integer id, ModelAndView modelAndView) {
-        modelAndView.setViewName(viewName);
+        modelAndView.setViewName(VIEW_NAME);
         deleteUser(id);
         return new AjaxResponse(ajaxRequest, modelAndView);
     }
 
     private Integer getNextId() {
-        if (userList.isEmpty()) {
+        if (USERS.isEmpty()) {
             return 1;
         }
-        return userList.get(userList.size() - 1).getId() + 1;
+        return USERS.get(USERS.size() - 1).getId() + 1;
     }
 
     private void deleteUser(Integer id) {
         User deleted = null;
-        for (User user : userList) {
+        for (User user : USERS) {
             if (user.getId().equals(id)) {
                 deleted = user;
             }
         }
         if (deleted != null) {
-            userList.remove(deleted);
+            USERS.remove(deleted);
         }
     }
 

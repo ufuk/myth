@@ -1,4 +1,4 @@
-package com.ufukuzun.myth.enums;
+package com.ufukuzun.myth.controller.crud.enums;
 
 public enum UserType {
 
