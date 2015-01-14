@@ -18,13 +18,16 @@ Myth = {
 
     ajax: function (source, config) {
 
+        // TODO ufuk: remove logging later
+        console.log(JSON.stringify(Myth.inputsToJSON(config.process)));
+
         $.ajax({
             type: "POST",
             url: config.url,
             contentType: "application/json",
             dataType: "text",
             data: JSON.stringify({
-                "model": this.inputsToJSON(config.process),
+                "model": Myth.inputsToJSON(config.process),
                 "update": config.update
             }),
             success: function (response) {
@@ -54,17 +57,27 @@ Myth = {
         var json = {};
         for (var id in process) {
             $.each($('#' + process[id]).serializeArray(), function () {
-                if (json[this.name] !== undefined) {
-                    if (!json[this.name].push) {
-                        json[this.name] = [json[this.name] ];
-                    }
-                    json[this.name].push(this.value || '');
+                var names = this.name.split('.');
+                if (names.length > 1) {
+                    var addingObject = Myth.getOrCreateObjectByHierarchicalNames(json, names);
+                    addingObject[names[names.length - 1]] = this.value || '';
                 } else {
                     json[this.name] = this.value || '';
                 }
             });
         }
         return json;
+    },
+
+    getOrCreateObjectByHierarchicalNames: function (json, names) {
+        var parentObject;
+        for (var index = 0; index < names.length - 1; index++) {
+            var objectKey = "json." + names.slice(0, index + 1).join('.');
+            if ((parentObject = eval(objectKey)) === undefined) {
+                parentObject = eval(objectKey + " = {}");
+            }
+        }
+        return parentObject;
     }
 
 };
