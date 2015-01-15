@@ -29,40 +29,23 @@ import org.jsoup.nodes.Node;
 import org.jsoup.parser.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.fragment.IFragmentSpec;
+import org.thymeleaf.spring4.view.FragmentRenderer;
 import org.thymeleaf.spring4.view.ThymeleafView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Myth {
-
-    private static final String THYMELEAF_ID_FRAGMENT_SELECTOR_ATTR_NAME = "th:id";
-
-    private static final String STANDARD_ID_FRAGMENT_SELECTOR_ATTR_NAME = "id";
-
-    private final static Method RENDER_FRAGMENT_METHOD;
-
-    static {
-        RENDER_FRAGMENT_METHOD = ReflectionUtils.findMethod(ThymeleafView.class, "renderFragment", IFragmentSpec.class, Map.class, HttpServletRequest.class, HttpServletResponse.class);
-        RENDER_FRAGMENT_METHOD.setAccessible(true);
-    }
 
     @Autowired
     private SessionLocaleResolver localeResolver;
@@ -110,39 +93,18 @@ public class Myth {
     }
 
     private String process(final String viewName, final String fragmentSelectorAttrValue, ModelMap modelMap, HttpServletRequest request, HttpServletResponse response) {
-        final StringWriter htmlStringWriter = new StringWriter();
-
-        ThymeleafView view = new ThymeleafView() {
-
-            @Override
-            public void render(Map<String, ?> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-                HttpServletResponseWrapper wrapper = new HttpServletResponseWrapper(response) {
-
-                    @Override
-                    public PrintWriter getWriter() throws IOException {
-                        return new PrintWriter(htmlStringWriter);
-                    }
-
-                };
-
-                ThymeleafView realView = (ThymeleafView) viewResolver.resolveViewName(viewName, localeResolver.resolveLocale(request));
-
-                String selectorAttrName = ExpressionUtils.isDollarExpression(fragmentSelectorAttrValue) ? THYMELEAF_ID_FRAGMENT_SELECTOR_ATTR_NAME : STANDARD_ID_FRAGMENT_SELECTOR_ATTR_NAME;
-                IFragmentSpec fragmentSpec = new AttributeNameAndValueFragmentSpec(fragmentSelectorAttrValue, selectorAttrName);
-
-                RENDER_FRAGMENT_METHOD.invoke(realView, fragmentSpec, model, request, wrapper);
-            }
-
-        };
-
         try {
-            view.render(modelMap, request, response);
+            ThymeleafView view = (ThymeleafView) viewResolver.resolveViewName(viewName, localeResolver.resolveLocale(request));
+            IFragmentSpec fragmentSpec = prepareFragmentSpec(fragmentSelectorAttrValue);
+            return FragmentRenderer.render(view, fragmentSpec, modelMap, request, response);
         } catch (Exception e) {
-            // TODO ufuk: log the exception, do not use "e.printStackTrace()"
-            e.printStackTrace();
+            return StringUtils.EMPTY;
         }
+    }
 
-        return htmlStringWriter.toString();
+    private IFragmentSpec prepareFragmentSpec(String fragmentSelectorAttrValue) {
+        String selectorAttrName = ExpressionUtils.isDollarExpression(fragmentSelectorAttrValue) ? "th:id" : "id";
+        return new AttributeNameAndValueFragmentSpec(fragmentSelectorAttrValue, selectorAttrName);
     }
 
     public <T> boolean validate(ModelMap modelMap, T targetBean, String targetName) {
