@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class MythEventAttrProcessor extends AbstractAttributeModifierAttrProcessor {
 
-    public final static String ATTR_NAME = "event";
+    public static final String ATTR_NAME = "event";
 
     public static final String ATTR_NAME_WITH_PREFIX = ElementAndAttrUtils.getPrefixedName(ATTR_NAME);
 

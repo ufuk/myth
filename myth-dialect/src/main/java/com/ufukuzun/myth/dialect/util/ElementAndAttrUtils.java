@@ -23,32 +23,13 @@ import org.thymeleaf.standard.expression.IStandardExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
 
-import java.util.List;
+public final class ElementAndAttrUtils {
 
-public class ElementAndAttrUtils {
-
-    public static Element getElementById(List<Element> elements, String elementId) {
-        for (Element each : elements) {
-            if (equalsAttribute(each, "id", elementId)) {
-                return each;
-            } else if (hasElementChildren(each)) {
-                return getElementById(each.getElementChildren(), elementId);
-            }
-        }
-
-        return null;
-    }
-
-    public static boolean equalsAttribute(Element element, String attribute, String value) {
-        return element.hasAttribute(attribute) && element.getAttributeValue(attribute).equals(value);
+    private ElementAndAttrUtils() {
     }
 
     public static String getPrefixedName(String elementName) {
         return MythDialect.DIALECT_PREFIX + ":" + elementName;
-    }
-
-    public static boolean hasElementChildren(Element element) {
-        return !element.getElementChildren().isEmpty();
     }
 
     public static String getProcessedAttributeValue(final Arguments arguments, final Element element, final String attributeName) {

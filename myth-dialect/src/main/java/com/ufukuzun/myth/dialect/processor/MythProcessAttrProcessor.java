@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class MythProcessAttrProcessor extends AbstractAttributeModifierAttrProcessor {
 
-    public final static String ATTR_NAME = "process";
+    public static final String ATTR_NAME = "process";
 
     public static final String ATTR_NAME_WITH_PREFIX = ElementAndAttrUtils.getPrefixedName(ATTR_NAME);
 

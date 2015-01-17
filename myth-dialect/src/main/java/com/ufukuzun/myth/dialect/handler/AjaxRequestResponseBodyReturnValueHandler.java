@@ -30,7 +30,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -43,10 +42,10 @@ import org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConv
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageConverterMethodProcessor {
 
@@ -73,9 +72,13 @@ public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageCo
             AjaxResponse ajaxResponse = (AjaxResponse) returnValue;
             HttpServletResponse response = (HttpServletResponse) webRequest.getNativeResponse();
             HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+
             ModelAndView modelAndView = ajaxResponse.getModelAndView();
 
-            modelAndView.getModelMap().mergeAttributes((HashMap<String, ?>) mavContainer.getModel().clone());
+            Map<String, Object> mavContainerAttributes = new LinkedHashMap<String, Object>();
+            mavContainerAttributes.putAll(mavContainer.getModel());
+            modelAndView.getModelMap().mergeAttributes(mavContainerAttributes);
+
             returnValue = myth.response(ajaxResponse.getAjaxRequest(), modelAndView, response, request);
 
             writeWithMessageConverters(returnValue, returnType, webRequest);
@@ -107,12 +110,7 @@ public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageCo
             mavContainer.addAttribute(targetName, ajaxRequest.getModel());
 
             if (performValidation) {
-                boolean modelValid = myth.validate(mavContainer.getModel(), ajaxRequest.getModel(), targetName);
-                if (!modelValid) {
-                    Field modelValidField = ReflectionUtils.findField(AjaxRequest.class, "modelValid");
-                    modelValidField.setAccessible(true);
-                    ReflectionUtils.setField(modelValidField, ajaxRequest, false);
-                }
+                ajaxRequest.setModelValid(myth.validate(mavContainer.getModel(), ajaxRequest.getModel(), targetName));
             }
         }
 

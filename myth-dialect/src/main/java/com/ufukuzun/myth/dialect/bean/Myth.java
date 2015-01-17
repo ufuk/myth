@@ -117,13 +117,12 @@ public class Myth {
         }
     }
 
-    private <T> BindingResult addBindingResultToModelMap(ModelMap modelMap, Set<ConstraintViolation<T>> errors, T targetBean, String targetName) {
+    private <T> void addBindingResultToModelMap(ModelMap modelMap, Set<ConstraintViolation<T>> errors, T targetBean, String targetName) {
         BindingResult br = new BeanPropertyBindingResult(targetBean, targetName);
         for (ConstraintViolation<T> cv : errors) {
             br.rejectValue(cv.getPropertyPath().toString(), getErrorCode(cv), cv.getMessage());
         }
         modelMap.addAttribute("org.springframework.validation.BindingResult." + targetName, br);
-        return br;
     }
 
     private <T> String getErrorCode(ConstraintViolation<T> cv) {

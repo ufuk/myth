@@ -29,29 +29,32 @@ import org.thymeleaf.dom.Element;
 
 import java.util.List;
 
-public class AjaxEventBindingBuilder {
+public final class AjaxEventBindingBuilder {
 
-    public final static String requestUpdateFormat = "{\"renderFragment\":%s, \"updates\":[%s]}";
+    private static final String REQUEST_UPDATE_FORMAT = "{\"renderFragment\":%s, \"updates\":[%s]}";
 
-    public final static String ajaxEventBindingFormat = "Myth.ajax(this, {\"update\":[%s], \"process\":[%s], \"url\":\"%s\"}); return false;";
+    private static final String AJAX_EVENT_BINDING_FORMAT = "Myth.ajax(this, {\"update\":[%s], \"process\":[%s], \"url\":\"%s\"}); return false;";
 
-    public static String[] build(Arguments arguments, Element element, String attributeName) {
-        String[] binding = new String[2];
+    private static final String DEFAULT_EVENT_NAME = "click";
 
-        binding[0] = getEventString(arguments, element);
-        binding[1] = String.format(
-                ajaxEventBindingFormat,
+    private AjaxEventBindingBuilder() {
+    }
+
+    public static AjaxEventBinding build(Arguments arguments, Element element) {
+        String eventAttributeName = getEventString(arguments, element);
+        String eventAttributeValue = String.format(
+                AJAX_EVENT_BINDING_FORMAT,
                 getUpdateString(arguments, element),
                 getProcessString(arguments, element),
                 getUrlString(arguments, element)
         );
 
-        return binding;
+        return new AjaxEventBinding(eventAttributeName, eventAttributeValue);
     }
 
     private static String getEventString(Arguments arguments, Element element) {
         String event = ElementAndAttrUtils.getProcessedAttributeValue(arguments, element, MythEventAttrProcessor.ATTR_NAME_WITH_PREFIX);
-        return "on" + (StringUtils.isNotBlank(event) ? event : "click");
+        return "on" + (StringUtils.isNotBlank(event) ? event : DEFAULT_EVENT_NAME);
     }
 
     private static String getProcessString(Arguments arguments, Element element) {
@@ -69,12 +72,12 @@ public class AjaxEventBindingBuilder {
 
         List<String> renderExpressions = ExpressionUtils.extractRenderExpressions(attributeValue);
         for (String each : renderExpressions) {
-            stringBuilder.append(getRequestUpdateString(arguments, ExpressionUtils.splitRenderFragmentAndUpdates(each)) + ", ");
+            stringBuilder.append(getRequestUpdateString(arguments, ExpressionUtils.splitRenderFragmentAndUpdates(each))).append(", ");
         }
 
         List<String> updates = ExpressionUtils.splitIdFragments(ExpressionUtils.removeRenderExpressions(attributeValue));
         for (String each : updates) {
-            stringBuilder.append(getRequestUpdateString(arguments, each) + ", ");
+            stringBuilder.append(getRequestUpdateString(arguments, each)).append(", ");
         }
 
         return StringUtils.removeEnd(stringBuilder.toString(), ", ");
@@ -86,7 +89,7 @@ public class AjaxEventBindingBuilder {
 
     private static String getRequestUpdateString(Arguments arguments, String[] array) {
         return String.format(
-                requestUpdateFormat,
+                REQUEST_UPDATE_FORMAT,
                 getIdsWithQuote(arguments, array[0], false, true),
                 getProcessedFragmentIdsWithQuote(arguments, array[1])
         );
@@ -112,7 +115,7 @@ public class AjaxEventBindingBuilder {
             if (encode) {
                 id = new String(Base64.encodeBase64(each.getBytes()));
             }
-            stringBuilder.append("\"" + id + "\", ");
+            stringBuilder.append("\"").append(id).append("\", ");
         }
 
         return StringUtils.removeEnd(stringBuilder.toString(), ", ");

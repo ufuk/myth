@@ -46,4 +46,8 @@ public class AjaxRequest<T> {
         return modelValid;
     }
 
+    public void setModelValid(boolean modelValid) {
+        this.modelValid = modelValid;
+    }
+
 }

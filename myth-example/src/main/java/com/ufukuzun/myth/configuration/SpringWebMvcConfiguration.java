@@ -35,6 +35,8 @@ import java.util.Locale;
 @ComponentScan("com.ufukuzun.myth")
 public class SpringWebMvcConfiguration extends WebMvcConfigurerAdapter {
 
+    private static final String CHARACTER_ENCODING = "UTF-8";
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
@@ -49,7 +51,7 @@ public class SpringWebMvcConfiguration extends WebMvcConfigurerAdapter {
     public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("i18n");
-        messageSource.setDefaultEncoding("UTF-8");
+        messageSource.setDefaultEncoding(CHARACTER_ENCODING);
         messageSource.setCacheSeconds(0);
         return messageSource;
     }
@@ -80,7 +82,7 @@ public class SpringWebMvcConfiguration extends WebMvcConfigurerAdapter {
         ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver();
         templateResolver.setPrefix("/WEB-INF/views/");
         templateResolver.setSuffix(".html");
-        templateResolver.setCharacterEncoding("UTF-8");
+        templateResolver.setCharacterEncoding(CHARACTER_ENCODING);
         templateResolver.setTemplateMode("HTML5");
         templateResolver.setCacheable(false);
         return templateResolver;
@@ -99,7 +101,7 @@ public class SpringWebMvcConfiguration extends WebMvcConfigurerAdapter {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine());
         viewResolver.setOrder(1);
-        viewResolver.setCharacterEncoding("UTF-8");
+        viewResolver.setCharacterEncoding(CHARACTER_ENCODING);
         return viewResolver;
     }
 

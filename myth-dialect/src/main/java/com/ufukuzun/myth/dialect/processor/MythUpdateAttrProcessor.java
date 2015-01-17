@@ -16,6 +16,7 @@
 
 package com.ufukuzun.myth.dialect.processor;
 
+import com.ufukuzun.myth.dialect.builder.AjaxEventBinding;
 import com.ufukuzun.myth.dialect.builder.AjaxEventBindingBuilder;
 import com.ufukuzun.myth.dialect.util.ElementAndAttrUtils;
 import org.thymeleaf.Arguments;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 public class MythUpdateAttrProcessor extends AbstractAttributeModifierAttrProcessor {
 
-    public final static String ATTR_NAME = "update";
+    public static final String ATTR_NAME = "update";
 
     public static final String ATTR_NAME_WITH_PREFIX = ElementAndAttrUtils.getPrefixedName(ATTR_NAME);
 
@@ -44,8 +45,8 @@ public class MythUpdateAttrProcessor extends AbstractAttributeModifierAttrProces
     protected Map<String, String> getModifiedAttributeValues(Arguments arguments, Element element, String attributeName) {
         Map<String, String> values = new HashMap<String, String>();
 
-        String[] binding = AjaxEventBindingBuilder.build(arguments, element, attributeName);
-        values.put(binding[0], binding[1]);
+        AjaxEventBinding ajaxEventBinding = AjaxEventBindingBuilder.build(arguments, element);
+        values.put(ajaxEventBinding.getEventAttributeName(), ajaxEventBinding.getEventAttributeValue());
 
         return values;
     }

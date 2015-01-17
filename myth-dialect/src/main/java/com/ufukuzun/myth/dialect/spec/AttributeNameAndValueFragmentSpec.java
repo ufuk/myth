@@ -29,9 +29,9 @@ import java.util.List;
 
 public class AttributeNameAndValueFragmentSpec implements IFragmentSpec {
 
-    private List<String> attributeNames;
+    private final List<String> attributeNames;
 
-    private String attributeValue;
+    private final String attributeValue;
 
     public AttributeNameAndValueFragmentSpec(String attributeValue, String... attributeNames) {
         this.attributeNames = Arrays.asList(attributeNames);
@@ -53,7 +53,7 @@ public class AttributeNameAndValueFragmentSpec implements IFragmentSpec {
     }
 
     private List<Node> extractFragmentByAttributeNameAndValue(List<Node> nodes, String attributeName, String attributeValue) {
-        String normalizedAttributeName = Node.normalizeName(attributeName);
+        String normalizedAttributeName = Element.normalizeElementName(attributeName);
 
         List<Node> fragmentNodes = new ArrayList<Node>();
         for (Node node : nodes) {
@@ -71,12 +71,10 @@ public class AttributeNameAndValueFragmentSpec implements IFragmentSpec {
             NestableNode nestableNode = (NestableNode) node;
             if (nestableNode instanceof Element) {
                 Element element = (Element) nestableNode;
-                if (attributeName != null) {
-                    if (element.hasNormalizedAttribute(attributeName)) {
-                        String elementAttrValue = element.getAttributeValue(attributeName);
-                        if (elementAttrValue != null && elementAttrValue.trim().equals(attributeValue)) {
-                            return Collections.singletonList((Node) nestableNode);
-                        }
+                if (attributeName != null && element.hasNormalizedAttribute(attributeName)) {
+                    String elementAttrValue = element.getAttributeValue(attributeName);
+                    if (elementAttrValue != null && elementAttrValue.trim().equals(attributeValue)) {
+                        return Collections.singletonList((Node) nestableNode);
                     }
                 }
             }
@@ -85,14 +83,12 @@ public class AttributeNameAndValueFragmentSpec implements IFragmentSpec {
             List<Node> children = nestableNode.getChildren();
             for (Node child : children) {
                 List<Node> childResult = extractFragmentFromNode(child, attributeName, attributeValue);
-                if (childResult != null) {
-                    extraction.addAll(childResult);
-                }
+                extraction.addAll(childResult);
             }
             return extraction;
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
 }
