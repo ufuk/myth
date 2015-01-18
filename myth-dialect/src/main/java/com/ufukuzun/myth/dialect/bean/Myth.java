@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -40,10 +41,7 @@ import org.thymeleaf.spring4.view.ThymeleafView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.util.List;
-import java.util.Set;
 
 public class Myth {
 
@@ -108,34 +106,18 @@ public class Myth {
     }
 
     public <T> boolean validate(ModelMap modelMap, T targetBean, String targetName) {
-        Set<ConstraintViolation<T>> errors = validator.validate(targetBean);
-        if (errors.isEmpty()) {
+        BindingResult bindingResult = new BeanPropertyBindingResult(targetBean, targetName);
+        validator.validate(targetBean, bindingResult);
+        if (!bindingResult.hasErrors()) {
             return true;
         } else {
-            addBindingResultToModelMap(modelMap, errors, targetBean, targetName);
+            addBindingResultToModelMap(modelMap, bindingResult, targetName);
             return false;
         }
     }
 
-    private <T> void addBindingResultToModelMap(ModelMap modelMap, Set<ConstraintViolation<T>> errors, T targetBean, String targetName) {
-        BindingResult br = new BeanPropertyBindingResult(targetBean, targetName);
-        for (ConstraintViolation<T> cv : errors) {
-            br.rejectValue(cv.getPropertyPath().toString(), getErrorCode(cv), cv.getMessage());
-        }
+    private void addBindingResultToModelMap(ModelMap modelMap, BindingResult br, String targetName) {
         modelMap.addAttribute("org.springframework.validation.BindingResult." + targetName, br);
-    }
-
-    private <T> String getErrorCode(ConstraintViolation<T> cv) {
-        String errorCode = StringUtils.replaceEach(
-                cv.getMessageTemplate(),
-                new String[]{"{", "org.hibernate.validator.constraints.", ".message}", "javax.validation.constraints."},
-                new String[]{"", "", "", ""}
-        );
-        return errorCode + "." + toCamelCase(cv.getLeafBean().getClass().getSimpleName());
-    }
-
-    private String toCamelCase(String className) {
-        return new StringBuilder(className).replace(0, 1, className.substring(0, 1).toLowerCase()).toString();
     }
 
 }
