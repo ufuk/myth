@@ -78,7 +78,7 @@
         <apache.commons.lang.version>3.3.2</apache.commons.lang.version>
         <apache.commons.codec.version>1.8</apache.commons.codec.version>
         <servlet.api.version>2.5</servlet.api.version>
-        <jsoup.version>1.7.2</jsoup.version>
+        <jsoup.version>1.8.1</jsoup.version>
     </properties>
 
     <dependencies>
@@ -124,7 +124,6 @@
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>
             <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -132,7 +131,6 @@
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
             <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -140,7 +138,6 @@
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
             <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
 
         <!-- Thymeleaf -->
@@ -148,14 +145,14 @@
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
             <version>${thymeleaf.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring4</artifactId>
             <version>${thymeleaf.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Servlet API -->
@@ -172,7 +169,7 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate.validator.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Apache Commons-->
@@ -180,12 +177,14 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${apache.commons.lang.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>${apache.commons.codec.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- jsoup -->
@@ -193,6 +192,7 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

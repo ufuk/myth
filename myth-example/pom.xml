@@ -26,7 +26,9 @@
         <hibernate.validator.version>5.1.0.Final</hibernate.validator.version>
         <jackson.mapper.version>2.3.2</jackson.mapper.version>
         <apache.commons.lang.version>3.3.2</apache.commons.lang.version>
+        <apache.commons.codec.version>1.8</apache.commons.codec.version>
         <servlet.api.version>3.0.1</servlet.api.version>
+        <jsoup.version>1.8.1</jsoup.version>
 
         <!-- Others -->
         <jdk.version>1.6</jdk.version>
@@ -160,11 +162,24 @@
             <version>${jackson.mapper.version}</version>
         </dependency>
 
-        <!-- Apache Commons Lang -->
+        <!-- Apache Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${apache.commons.lang.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${apache.commons.codec.version}</version>
+        </dependency>
+
+        <!-- jsoup -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
         </dependency>
     </dependencies>
 
