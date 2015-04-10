@@ -110,7 +110,7 @@ public class AjaxRequestResponseBodyReturnValueHandler extends AbstractMessageCo
             mavContainer.addAttribute(targetName, ajaxRequest.getModel());
 
             if (performValidation) {
-                ajaxRequest.setModelValid(myth.validate(mavContainer.getModel(), ajaxRequest.getModel(), targetName));
+                ajaxRequest.setValid(myth.validate(mavContainer.getModel(), ajaxRequest.getModel(), targetName));
             }
         }
 

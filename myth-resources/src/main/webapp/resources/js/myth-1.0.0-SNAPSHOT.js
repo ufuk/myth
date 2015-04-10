@@ -18,9 +18,6 @@ Myth = {
 
     ajax: function (source, config) {
 
-        // TODO ufuk: remove logging later
-        console.log(JSON.stringify(Myth.inputsToJSON(config.process)));
-
         $.ajax({
             type: "POST",
             url: config.url,

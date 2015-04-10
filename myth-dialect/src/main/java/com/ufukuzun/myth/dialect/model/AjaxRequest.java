@@ -22,7 +22,7 @@ public class AjaxRequest<T> {
 
     private T model;
 
-    private transient boolean modelValid = true;
+    private transient boolean valid = true;
 
     private List<RequestUpdate> update;
 
@@ -42,12 +42,12 @@ public class AjaxRequest<T> {
         this.update = update;
     }
 
-    public boolean isModelValid() {
-        return modelValid;
+    public boolean isValid() {
+        return valid;
     }
 
-    public void setModelValid(boolean modelValid) {
-        this.modelValid = modelValid;
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 
 }

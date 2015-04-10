@@ -2,7 +2,6 @@ package com.ufukuzun.myth.controller.crud;
 
 import com.ufukuzun.myth.controller.crud.domain.User;
 import com.ufukuzun.myth.controller.crud.enums.UserType;
-import com.ufukuzun.myth.controller.crud.request.UserAjaxRequest;
 import com.ufukuzun.myth.dialect.handler.annotation.AjaxRequestBody;
 import com.ufukuzun.myth.dialect.handler.annotation.AjaxResponseBody;
 import com.ufukuzun.myth.dialect.model.AjaxRequest;
@@ -51,9 +50,9 @@ public class UsersController {
 
     @RequestMapping(value = "/saveUser", method = RequestMethod.POST)
     @AjaxResponseBody
-    public AjaxResponse saveUser(@AjaxRequestBody(validate = true, targetName = "user") UserAjaxRequest ajaxRequest, ModelAndView modelAndView) {
+    public AjaxResponse saveUser(@AjaxRequestBody(validate = true, targetName = "user") AjaxRequest<User> ajaxRequest, ModelAndView modelAndView) {
         modelAndView.setViewName(VIEW_NAME);
-        if (ajaxRequest.isModelValid()) {
+        if (ajaxRequest.isValid()) {
             ajaxRequest.getModel().setId(getNextId());
             USERS.add(ajaxRequest.getModel());
             modelAndView.addObject("user", new User());
